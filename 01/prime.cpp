@@ -33,12 +33,12 @@ int find_right_idx (const int * Data, const int & Size, const int & right, const
     return right_idx;
 }
 
-void quantity_of_prime (const int * Data, const int & Size, const int & left_idx, const int & right_idx) {
+int quantity_of_prime (const int * Data, const int & Size, const int & left_idx, const int & right_idx) {
     int sum=0;
     for (int j=left_idx; j<=right_idx; j++) {
         sum+=is_prime(Data[j]);
     }
-    std::cout << sum << "\n";
+    return sum;
 }
 
 int main(int argc, char* argv[])
@@ -69,7 +69,7 @@ int main(int argc, char* argv[])
             std::cout << 0 << "\n";
             continue;
         }
-        quantity_of_prime (Data, Size, left_idx, right_idx);
+        std::cout<<quantity_of_prime (Data, Size, left_idx, right_idx);
     }
 
     return 0;
