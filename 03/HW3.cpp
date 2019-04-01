@@ -2,10 +2,10 @@
 
 class Row {
     int *row;
-    int len;
+    size_t len;
 
     public:
-        Row(int *row, int len) : row(row), len(len) {}
+        Row(int *row, size_t len) : row(row), len(len) {}
 
         int operator[] (size_t num) const {
             if (num >= len) 
@@ -21,12 +21,12 @@ class Row {
 };
 
 class Matrix {
-    const int rows;
-    const int cols;
+    const size_t rows;
+    const size_t cols;
     int **matrix;
 
     public:
-        Matrix(int rows1, int cols1) :rows(rows1), cols(cols1) {
+        Matrix(size_t rows1, size_t cols1) :rows(rows1), cols(cols1) {
             matrix = new int *[rows];
             for (int i = 0; i < rows; ++i) {
                 matrix[i] = new int [cols];
@@ -40,21 +40,21 @@ class Matrix {
             delete[] matrix;
         }
         
-        int getRows() const {
+        size_t getRows() const {
             return rows;
         }
         
-        int getColumns() const {
+        size_t getColumns() const {
             return cols;
         }
 
-        const Row operator[](int num) const {
+        const Row operator[](size_t num) const {
             if (num >= rows) 
                 throw std::out_of_range("");
             return Row(matrix[num], cols);
         }
 
-        Row operator[](int num) {
+        Row operator[](size_t num) {
             if (num >= rows) 
                 throw std::out_of_range("");
             return Row(matrix[num], cols);
