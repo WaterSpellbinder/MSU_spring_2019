@@ -9,8 +9,8 @@ using namespace std;
 class Calculator {
     string s;
 
-    int64_t do_mult(string str) const;
-    int64_t do_add(string str) const;
+    int64_t do_mult(const string &str) const;
+    int64_t do_add(const string &str) const;
     void del_spaces();
     bool check() const;
 
@@ -47,7 +47,7 @@ bool Calculator::check() const{
     return true;
 }
 
-int64_t Calculator::do_mult(string str) const{
+int64_t Calculator::do_mult(const string &str) const{
     bool op_exist = false;
     bool minus = false;
     char op;
@@ -96,7 +96,7 @@ int64_t Calculator::do_mult(string str) const{
     }
 }    
 
-int64_t Calculator::do_add(string str) const{
+int64_t Calculator::do_add(const string &str) const{
     bool op_exist = false;
     char op;
     string s1 = "", s2 = "";
