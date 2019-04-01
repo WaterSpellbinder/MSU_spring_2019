@@ -2,7 +2,7 @@
 
 class Row {
     int *row;
-    size_t len;
+    const size_t len;
 
     public:
         Row(int *row, size_t len) : row(row), len(len) {}
