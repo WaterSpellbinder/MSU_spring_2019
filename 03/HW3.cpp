@@ -28,13 +28,13 @@ class Matrix {
     public:
         Matrix(size_t rows1, size_t cols1) :rows(rows1), cols(cols1) {
             matrix = new int *[rows];
-            for (int i = 0; i < rows; ++i) {
+            for (auto i = 0; i < rows; ++i) {
                 matrix[i] = new int [cols];
             }
         }
 
         ~Matrix() {
-            for (int i = 0; i < rows; ++i) {
+            for (auto i = 0; i < rows; ++i) {
                 delete[] matrix[i];
             }
             delete[] matrix;
@@ -61,16 +61,16 @@ class Matrix {
         }
 
         Matrix &operator*=(const int multiplier) {
-            for (int i = 0; i < rows; ++i) 
-               for (int j = 0; j < cols; ++j) 
+            for (auto i = 0; i < rows; ++i) 
+               for (auto j = 0; j < cols; ++j) 
                   matrix[i][j] *= multiplier;
             return *this;
         }
 
         bool operator==(const Matrix &second) const {
             if ((cols == second.cols) && (rows == second.rows)) {
-                for (int i = 0; i < rows; ++i)
-                    for (int j = 0; j < cols; ++j) 
+                for (auto i = 0; i < rows; ++i)
+                    for (auto j = 0; j < cols; ++j) 
                        if (matrix[i][j] != second.matrix[i][j]) {
                             return false;
                        }
