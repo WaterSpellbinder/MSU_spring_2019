@@ -20,7 +20,7 @@ public:
         }
  
         allocate(20);   // 10^20 > LLONG_MAX
-        if ( x== 0) {
+        if (x == 0) {
             size_= 1;
             mem_[0] = 0;
         } else {
