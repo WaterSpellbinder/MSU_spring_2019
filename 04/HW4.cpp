@@ -222,7 +222,6 @@ private:
             carry /= 10;
             ++sum.size_;
         }
-        // std::cerr << sum.size_ << " " << sum.mem_[sum.size_ - 1] << "\n";
     }
  
     void subtractAbsoluteValues(BigInt& sum, const BigInt& first, const BigInt& second) const {
