@@ -111,12 +111,14 @@ public:
         return result;
     }
  
-    void operator +=(const BigInt& num) {
+    BigInt operator +=(const BigInt& num) {
         *this = *this + num;
+        return *this; 
     }
  
-    void operator -=(const BigInt& num) {
+    BigInt operator -=(const BigInt& num) {
         *this = *this - num;
+        return *this;
     }
  
     bool operator <(const BigInt& num) const {
