@@ -111,12 +111,12 @@ public:
         return result;
     }
  
-    BigInt operator +=(const BigInt& num) {
+    BigInt& operator +=(const BigInt& num) {
         *this = *this + num;
         return *this; 
     }
  
-    BigInt operator -=(const BigInt& num) {
+    BigInt& operator -=(const BigInt& num) {
         *this = *this - num;
         return *this;
     }
