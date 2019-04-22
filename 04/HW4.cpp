@@ -56,45 +56,13 @@ public:
     }
  
     BigInt operator +(const BigInt& num) const {
-        BigInt result;
-        if (negative_ == num.negative_) {
-            result.negative_ = negative_;
-            result.reallocate(std::max(size_, num.size_) + 1);
-            addAbsoluteValues(result, *this, num);
-        } else {
-            result.reallocate(std::max(size_, num.size_));
-            if (lessByAbsoluteValue(num)) {
-                result.negative_ = num.negative_;
-                subtractAbsoluteValues(result, num, *this);
-            } else {
-                result.negative_ = negative_;
-                subtractAbsoluteValues(result, *this, num);
-            }
-        }
-        if ((result.size_ == 1) && (result.mem_[0] == 0))
-            result.negative_ = false;
-        return result;
+        BigInt result(*this);
+        return result += num;
     }
  
     BigInt operator -(const BigInt& num) const {
-        BigInt result;
-        if (negative_ != num.negative_) {
-            result.negative_ = negative_;
-            result.reallocate(std::max(size_, num.size_) + 1);
-            addAbsoluteValues(result, *this, num);
-        } else {
-            result.reallocate(std::max(size_, num.size_));
-            if (lessByAbsoluteValue(num)) {
-                result.negative_ = !negative_;
-                subtractAbsoluteValues(result, num, *this);
-            } else {
-                result.negative_ = negative_;
-                subtractAbsoluteValues(result, *this, num);
-            }
-        }
-        if ((result.size_ == 1) && (result.mem_[0] == 0))
-            result.negative_ = false; 
-        return result;
+        BigInt result(*this);
+        return result -= num;
     }
  
     BigInt operator -() const {
@@ -112,13 +80,35 @@ public:
     }
  
     BigInt& operator +=(const BigInt& num) {
-        *this = *this + num;
+        if (negative_ == num.negative_) {
+            addAbsoluteValue(num);
+        } else {
+            if (lessByAbsoluteValue(num)) {
+                negative_ = num.negative_;
+                subtractAbsoluteValueFrom(num);
+            } else {
+                subtractAbsoluteValue(num);
+            }
+        }
+        if ((size_ == 1) && (mem_[0] == 0))
+            negative_ = false;
         return *this; 
     }
  
     BigInt& operator -=(const BigInt& num) {
-        *this = *this - num;
-        return *this;
+        if (negative_ != num.negative_) {
+            addAbsoluteValue(num);
+        } else {
+            if (lessByAbsoluteValue(num)) {
+                negative_ = !negative_;
+                subtractAbsoluteValueFrom(num);
+            } else {
+                subtractAbsoluteValue(num);
+            }
+        }
+        if ((size_ == 1) && (mem_[0] == 0))
+            negative_ = false;
+        return *this; 
     }
  
     bool operator <(const BigInt& num) const {
@@ -183,8 +173,8 @@ private:
     }
  
     void reallocate(int capacity) {
-        clear();
-        allocate(capacity);
+        capacity_ = capacity;
+        mem_ = (int*)realloc(mem_, sizeof(int) * capacity);
     }
  
     bool equalByAbsoluteValue(const BigInt& num) const {
@@ -209,62 +199,95 @@ private:
         }
     }
  
-    void addAbsoluteValues(BigInt& sum, const BigInt& first, const BigInt& second) const {
+    void addAbsoluteValue(const BigInt& other) {
+        reallocate(std::max(size_, other.size_) + 1);
         int carry = 0;
-        const int *first_mem = first.mem_, *second_mem = second.mem_;
-        sum.size_ = 0;
-        while (carry > 0 || sum.size_ < first.size_ || sum.size_ < second.size_) {
-            if (sum.size_ < first.capacity_) {
-                carry += first_mem[sum.size_];
+        int old_size = size_;
+        size_ = 0;
+        while (carry > 0 || size_ < old_size || size_ < other.size_) {
+            if (size_ < old_size) {
+                std::cerr << mem_[size_] << " ";
+                carry += mem_[size_];
             }
-            if (sum.size_ < second.capacity_) {
-                carry += second_mem[sum.size_];
+            if (size_ < other.size_) {
+                std::cerr << other.mem_[size_] << " ";
+                carry += other.mem_[size_];
             }
-            sum.mem_[sum.size_] = carry % 10;
+            std::cerr << ": " << carry << "\n";
+            mem_[size_] = carry % 10;
             carry /= 10;
-            ++sum.size_;
+            ++size_;
         }
     }
  
-    void subtractAbsoluteValues(BigInt& sum, const BigInt& first, const BigInt& second) const {
+    void subtractAbsoluteValue(const BigInt& other) {
         bool t = false;
         int s=0;
-        for (int i = 0; i < second.size_; ++i) {
-            if (first.mem_[i] >= second.mem_[i]) {
+        for (int i = 0; i < std::max(size_, other.size_); ++i) {
+            int a = 0, b = 0;
+            if (i < size_) {
+                a = mem_[i];
+            }
+            if (i < other.size_) {
+                b = other.mem_[i];
+            }
+            if (a >= b) {
                 if (t == false) {
-                    sum.mem_[i] = first.mem_[i]-second.mem_[i];
+                    mem_[i] = a-b;
                 } else {
-                    if (first.mem_[i] > second.mem_[i]) {
-                        sum.mem_[i] = first.mem_[i]-1-second.mem_[i];
+                    if (a > b) {
+                        mem_[i] = a-1-b;
                         t = false;
                     } else {
-                        sum.mem_[i] = first.mem_[i]+9-second.mem_[i];
+                        mem_[i] = a+9-b;
                     }
                 }
             } else {
                 if (t == false) {
                     t = true;
-                    sum.mem_[i] = first.mem_[i]+10-second.mem_[i];
+                    mem_[i] = a+10-b;
                 } else {
-                    sum.mem_[i] = first.mem_[i]+9-second.mem_[i];
+                    mem_[i] = a+9-b;
                 }
             }
-            if (sum.mem_[i] > 0) s = i;
+            if (mem_[i] > 0) s = i;
         }
-        for (int i = second.size_; i < first.size_; ++i) {
-            if (t == false) {
-                sum.mem_[i] = first.mem_[i];
+        size_ = s + 1;
+    }
+
+    void subtractAbsoluteValueFrom(const BigInt& other) {
+        bool t = false;
+        int s=0;
+        for (int i = 0; i < std::max(size_, other.size_); ++i) {
+            int a = 0, b = 0;
+            if (i < size_) {
+                b = mem_[i];
+            }
+            if (i < other.size_) {
+                a = other.mem_[i];
+            }
+            if (a >= b) {
+                if (t == false) {
+                    mem_[i] = a-b;
+                } else {
+                    if (a > b) {
+                        mem_[i] = a-1-b;
+                        t = false;
+                    } else {
+                        mem_[i] = a+9-b;
+                    }
+                }
             } else {
-                if (first.mem_[i] > 0) {
-                    sum.mem_[i] = first.mem_[i]-1;
-                    t = false;
+                if (t == false) {
+                    t = true;
+                    mem_[i] = a+10-b;
                 } else {
-                    sum.mem_[i] = first.mem_[i]+9;
+                    mem_[i] = a+9-b;
                 }
             }
-            if (sum.mem_[i] > 0) s = i;
+            if (mem_[i] > 0) s = i;
         }
-        sum.size_ = s + 1;
+        size_ = s + 1;
     }
 };
  
