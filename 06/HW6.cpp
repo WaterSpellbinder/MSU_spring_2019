@@ -54,7 +54,6 @@ string format(const string& s, T&& t, Args&&... args) {
             }
         }
     }
-    ostr.flush();
     if (braces_balance > 0) {
         throw runtime_error("excess {}");
     }
