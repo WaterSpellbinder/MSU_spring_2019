@@ -1,4 +1,6 @@
 #include <iostream>
+#include <algorithm>
+#include <utility>
 #include <iterator>
 #include <stdexcept>
 
@@ -197,11 +199,14 @@ class Vector
                 return;
             }
             pointer tmp_data = alloc_.allocate(newsize);
-            std::copy(data_, data_ + size_, tmp_data);
+            std::move(data_, data_+size_, tmp_data);
+            //std::copy(data_, data_ + size_, tmp_data);           
             for (size_type i = 0; i < size_; ++i) {
                 alloc_.destroy(data_ + i);
             }
+            
             alloc_.deallocate(data_, allocated_);
+          
             data_ = tmp_data;
             allocated_ = newsize;
         }
