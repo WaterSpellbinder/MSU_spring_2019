@@ -205,7 +205,7 @@ class Vector
                 alloc_.destroy(data_ + i);
             }
             
-            alloc_.deallocate(data_, allocated_);
+            //alloc_.deallocate(data_, allocated_);
           
             data_ = tmp_data;
             allocated_ = newsize;
