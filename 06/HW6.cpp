@@ -43,7 +43,7 @@ string format(string s, Args&&... t) {
         } else if (braces_balance == 0) {
             format_string.push_back(c);
         } else {
-            if ((c < '0') || (c > '9')) {
+            if (!isdigit(c)) {
                 throw runtime_error("not number in {}");
             } else {
                 current_number += c;
