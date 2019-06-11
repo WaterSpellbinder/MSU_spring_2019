@@ -23,7 +23,7 @@ class Serializer {
 
     private:
     template <class T, class... ArgsT>
-        Error process (T value, ArgsT ... args) {
+        Error process (T value, ArgsT&& ... args) {
             process (value);
             process (std::forward<ArgsT> (args)...);
             return Error::NoError;
