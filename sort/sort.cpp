@@ -34,10 +34,10 @@ void find(int64_t value, size_t beg, size_t end, size_t &l, int thread_num) {
 }
 
 void swap_in_file(int64_t value1, int64_t value2, size_t place1, size_t place2, int thread_num) {
-    fseek(file[thread_num], place1*sizeof(int64_t),0);
-    fwrite(&value2,sizeof(int64_t),1,file[thread_num]);
-    fseek(file[thread_num], place2*sizeof(int64_t),0);
-    fwrite(&value1,sizeof(int64_t),1,file[thread_num]);
+    fseek(file[thread_num], place1*sizeof(int64_t), 0);
+    fwrite(&value2, sizeof(int64_t), 1, file[thread_num]);
+    fseek(file[thread_num], place2*sizeof(int64_t), 0);
+    fwrite(&value1, sizeof(int64_t), 1, file[thread_num]);
     for (size_t i = 0; i < file.size(); ++i) {
         fclose(file[i]);
         file[i] = fopen(file_name.c_str(), "rb+");
@@ -49,7 +49,6 @@ void swap(size_t pos1, size_t pos2) {
     tmp[0][pos1] = tmp[1][pos2];
     tmp[1][pos2] = elem;
 }
-
 // >
 void find_bigger(int64_t value, size_t& it, int thread_num) {
     while (it < tmp[thread_num].size()) {
@@ -67,39 +66,24 @@ void find_less(int64_t value, size_t& it, int thread_num) {
     }
 }
 
-std::vector<int64_t> get_vector(const std::string& file_name) {
-    FILE* file = fopen(file_name.c_str(), "rb");
-    fseek(file, 0, 2);
-    size_t n = ftell(file) / sizeof(int64_t);
-    fseek(file, 0, 0);
-    std::vector<int64_t> v(n);
-    for (int i = 0; i < n; ++i) {
-        fread(&v[i], sizeof(v[i]), 1, file);
-        //        std::cerr << v[i] << ' ';
-    }
-    //    std::cerr << std::endl;
-    fclose(file);
-    return v;
-}
-
 void sort (size_t beg, size_t end) {
     if (end > beg + 1) {
         //std::cerr << "sort: " << beg << ' ' << end << std::endl;
         size_t d = rand() % (end-beg);
         fseek(file[0], (beg+d)*sizeof(int64_t),0);
         int64_t value;
-        fread(&value,sizeof(int64_t),1,file[0]);
-        size_t l1=0,l2=0,r1=0,r2=0;
+        fread(&value, sizeof(int64_t), 1, file[0]);
+        size_t l1 = 0, l2 = 0, r1 = 0, r2 = 0;
         std::thread t1 (find, value, beg, beg+(end-beg)/2, std::ref(l1), 0);
         std::thread t2 (find, value, beg+(end-beg)/2, end, std::ref(l2), 1);
         t1.join();
         t2.join();
-        size_t l=l1+l2-1;
+        size_t l = l1+l2-1;
         //std::cerr << "sort l: " << l << " r: " << r << std::endl;
         int64_t replaced;
         fseek(file[0], (beg+l)*sizeof(int64_t), 0);
         fread(&replaced,sizeof(int64_t), 1, file[0]);
-        swap_in_file(value,replaced,beg+d,beg+l, 0);
+        swap_in_file(value, replaced, beg+d, beg+l, 0);
         //get_vector("in");
         size_t s1 = 0, s2 = 0;
         size_t r = (end-beg)-l-1;
@@ -108,20 +92,20 @@ void sort (size_t beg, size_t end) {
             tmp[0].resize(std::min(block_size, l - s1));
             tmp[1].resize(std::min(block_size, r - s2));
             std::thread t1 (read_to_vec, beg+s1, 0);
-            std::thread t2 (read_to_vec,beg+l+1+s2, 1);
+            std::thread t2 (read_to_vec, beg+l+1+s2, 1);
             t1.join();
             t2.join();
             while ((it1 < tmp[0].size()) && (it2 < tmp[1].size())) {
                 find_bigger(value, std::ref(it1), 0);
                 find_less(value, std::ref(it2), 1);
                 if ((it1 < tmp[0].size()) && (it2 < tmp[1].size())) {
-                    swap(it1,it2);
+                    swap(it1, it2);
                 }
             }
             rewrite_file(beg+s1, it1, 0);
             rewrite_file(beg+l+1+s2, it2, 1);
-            s1+=it1;
-            s2+=it2;
+            s1 += it1;
+            s2 += it2;
             //std::cerr << "it1: " << it1 << " it2: " << it2 << " value: " << value << " val1: " << val1 << " val2: " << val2 << std::endl;
             //get_vector("in");
 
@@ -133,6 +117,17 @@ void sort (size_t beg, size_t end) {
         sort(beg, beg+l);
         sort(beg+l+1, end);
     }
+}
+
+std::vector<int64_t> get_vector(const std::string& file_name) {
+    FILE* file = fopen(file_name.c_str(), "rb");
+    fseek(file, 0, 2);
+    size_t n = ftell(file) / sizeof(int64_t);
+    fseek(file, 0, 0);
+    std::vector<int64_t> v(n);
+    fread(&v[i][0], sizeof(v[i]), n, file);
+    fclose(file);
+    return v;
 }
 
 void fill_file_by_random(const std::string& file_name) {
@@ -156,7 +151,7 @@ int main() {
     }
     fseek(file[0], 0, 2);
     size_t n = ftell(file[0]) / sizeof(int64_t);
-    std::cerr << n << std::endl;
+    //std::cerr << n << std::endl;
     sort(0, n);
     auto final_v = get_vector(file_name);
     assert(initial_v == final_v);
