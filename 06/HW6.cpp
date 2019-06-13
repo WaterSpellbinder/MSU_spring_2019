@@ -14,7 +14,7 @@ string to_string(T&& arg) {
 }
 
 template <typename... Args>
-string format(string s, Args&&... t) {
+string format(const string& s, Args&&... t) {
     vector<string> args = {to_string(std::forward<Args>(t))...};
     stringstream ostr;
     int braces_balance = 0;
